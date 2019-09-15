@@ -1,5 +1,5 @@
 <template>
-  <el-dialog @close="closedialog" :visible="dialogvisible" width="45%">
+  <el-dialog @close="closedialog" :visible="dialogvisible" width="45%" class="dial">
           <el-card class="card">
             <div slot="header">
               <strong>新增学科</strong>

@@ -78,9 +78,9 @@
           <el-table-column label="标签" prop="tags" align="center"></el-table-column>
           <el-table-column label="题目数量" prop="totals" align="center"></el-table-column>
           <el-table-column label="创建日期" width="220" align="center">
+            <template slot-scope="obj"> 
               <el-button type="text" size="mini">学科分类</el-button>
               <el-button type="text" size="mini">学科标签</el-button>
-            <template>// slot-scope="obj"
               <el-button type="text" size="mini">修改</el-button>
               <el-button type="text" size="mini">删除</el-button>
             </template>
