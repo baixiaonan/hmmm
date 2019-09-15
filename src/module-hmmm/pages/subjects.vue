@@ -3,7 +3,7 @@
     <div class="app-container">
       <el-card>
         <el-row>
-          <el-button class="btn" @click="dialogVisible =true ">新增学科</el-button>
+          <el-button class="btn" @click="dialog(true)">新增学科</el-button>
           <i class="el-icon-tickets item1" v-popover:popover style="cursor:help"></i>
           <el-popover
             ref="popover"
@@ -19,26 +19,7 @@
             <div style="margin:5px 0 15px 0">点击显示新建目录弹窗</div>
           </el-popover>
         </el-row>
-        <subjects-add :dialogvisible='dialogVisible' @closeDialog='closeDialog' @addSub='addsub'></subjects-add>
-        <!-- <el-dialog @close="closedialog" :visible="dialogVisible" width="45%">
-          <el-card class="card">
-            <div slot="header">
-              <strong>新增学科</strong>
-            </div>
-            <el-form class="form" :model="formData" :rules="formRules" ref="subjectForm">
-              <el-form-item label="学科名称" label-width="80px" prop="subjectName">
-                <el-input style="width:200px" v-model="formData.subjectName"></el-input>
-              </el-form-item>
-              <el-form-item label="是否显示">
-                <el-switch v-model="formData.isFrontDisplay" active-color="#409EFF"></el-switch>
-              </el-form-item>
-            </el-form>
-          </el-card>
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="closedialog">取 消</el-button>
-            <el-button type="primary" @click="addSubject">确 定</el-button>
-          </span>
-        </el-dialog> -->
+        <subjects-add :dialogvisible='dialogVisible' :clickevent='event' :itemdata='subjectitem' @closeDialog='closeDialog' @addSub='getSubjects'></subjects-add>
         <el-row type="flex" justify="space-between">
           <span>
             学科名称
@@ -81,8 +62,8 @@
             <template slot-scope="obj"> 
               <el-button type="text" size="mini">学科分类</el-button>
               <el-button type="text" size="mini">学科标签</el-button>
-              <el-button type="text" size="mini">修改</el-button>
-              <el-button type="text" size="mini">删除</el-button>
+              <el-button type="text" size="mini" @click="dialog(false,obj.row)">修改</el-button>
+              <el-button type="text" size="mini" @click='del(obj.row)'>删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -101,7 +82,7 @@
 
 <script>
 import subjectsAdd from '../components/subjects-add'
-import { list as subjectList } from '../../api/hmmm/subjects.js'
+import { list as subjectList, remove } from '../../api/hmmm/subjects.js'
 export default {
   name: 'SubjectsList',
   components: {
@@ -109,16 +90,10 @@ export default {
   },
   data() {
     return {
+      subjectitem: {},
+      event: true,
       visible1: false,
       visible: false,
-      // 与验证相关
-      // formData: {
-      //   subjectName: '',
-      //   isFrontDisplay: true
-      // },
-      // formRules: {
-      //   subjectName: [{ required: true, message: '请填写学科名称' }]
-      // },
       dialogVisible: false,
       page: {
         page: 1,
@@ -130,28 +105,28 @@ export default {
     }
   },
   methods: {
-    // // 关闭弹框
-    // closedialog() {
-    //   this.dialogVisible = false
-    //   this.formData.subjectName = ''
-    //   this.formData.isFrontDisplay = true
-    // },
-    // // 添加学科
-    // addSubject() {
-    //   this.$refs.subjectForm.validate(async isOk => {
-    //     if (isOk) {
-    //       let rst = await add(this.formData)
-    //       // console.log(rst)
-    //       this.closedialog()
-    //       this.getSubjects()
-    //     }
-    //   })
-    // },
-    addsub() {
+    // 打开新增学科dialog
+    dialog(param, item) {
+      this.dialogVisible = true
+      if (item) {
+        this.subjectitem = item
+      }
+      this.event = param
+      console.log(this.subjectitem)
+      console.log(this.event)
+    },
+    // 删除
+    async del(info) {
+      await this.$confirm('您确定要删除本条内容吗？', '提示')
+      await remove(info)
       this.getSubjects()
     },
+    // addsub() {
+    //   this.getSubjects()
+    // },
     closeDialog() {
       this.dialogVisible = false
+      this.subjectitem = {}
     },
     clearSearch() {
       this.page.page = 1
@@ -170,8 +145,8 @@ export default {
       let rst = await subjectList(this.page)
       this.list = rst.data.items
       this.page.total = rst.data.counts
-      console.log(this.list)
-      console.log(this.page.total)
+      // console.log(this.list)
+      // console.log(this.page.total)
     }
   },
   created() {
